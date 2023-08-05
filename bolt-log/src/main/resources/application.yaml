@@ -1,0 +1,11 @@
+logger:
+	FileLogStream:
+		className:org.thebolt.log.stream.impl.FileLogStream
+		logFilePath:/home/logs/app.log		
+		maxFileSizeInMB:5
+		maxNumOfFilesToMaintain:10
+		rollingFiles:true
+		logFormatter:org.thebolt.log.format.StandardFormatter
+	ConsoleLogStream:
+		className:org.thebolt.log.stream.impl.ConsoleLogStream
+		logFormatter:org.thebolt.log.format.StandardFormatter
