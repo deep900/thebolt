@@ -12,17 +12,19 @@ import java.util.Properties;
  * @author Pradheep
  *
  */
-public interface LogStream {
+public abstract class LogStream {
 
-	public LogFormatter getLogFormatter();
+	public abstract LogFormatter getLogFormatter();
 
-	public void setLogFormatter(LogFormatter logFormatter);
+	public abstract void setLogFormatter(LogFormatter logFormatter);
 	
 	/**
 	 * Write the log in the specified format.
 	 * @param logInformation
 	 */
-	public void writeLog(LogInformation logInformation);
+	public abstract void writeLog(LogInformation logInformation);
 	
-	public LogStream buildLogStream(Properties logStreamProperties);
+	public LogStream(Properties logStreamProperties){
+		
+	}
 }
