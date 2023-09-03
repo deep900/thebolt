@@ -1,7 +1,7 @@
 loggerInfo:
  FileLogStream:
   className: org.thebolt.log.stream.impl.FileLogStream
-  logFilePath: /home/logs/app
+  logFilePath: /home/logs/app.log
   maxFileSizeInMB: 5
   maxNumOfFilesToMaintain: 10
   rollingFiles: true

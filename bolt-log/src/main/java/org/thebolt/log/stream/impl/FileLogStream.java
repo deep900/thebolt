@@ -66,6 +66,11 @@ public class FileLogStream extends LogStream {
 				throw new IllegalArgumentException(
 						"Log file property \"logFilePath\" is missing in the application.yaml");
 			}
+			outputFile = new File(logFileName + String.valueOf(fileNamePart) + ".log");
+			if(!outputFile.exists()) {
+				System.out.println(outputFile.createNewFile() ? "Log file created successfully" : "Unable to create the log file");
+			}
+			System.out.println("Writting the logs in path :" + outputFile.getAbsolutePath());
 			String fileSize = logStreamProperties.getProperty("maxFileSizeInMB");
 			if (null == fileSize || fileSize.isEmpty()) {
 				System.out.println("Warning: Rolling file size will be taken as 5MB");

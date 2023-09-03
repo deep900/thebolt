@@ -3,35 +3,35 @@
  */
 package org.thebolt.log.formatter.test;
 
-import org.junit.jupiter.api.Assertions;
+import java.util.logging.Level;
+
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.thebolt.log.LogInformation;
 import org.thebolt.log.formatter.StandardFormatter;
 
 /**
- * @author deep90
+ * @author Pradheep
  *
  */
-@DisplayName("Standard Formatter Test")
 public class StandardFormatterTest {
 	
 	StandardFormatter formatter;
+	LogInformation logInformation;
 
 	@BeforeAll
 	public void init(){
 		formatter = new StandardFormatter();
+		logInformation.setClassName("Test Class");
+		logInformation.setLogLevel(Level.ALL);
+		logInformation.setLogMessage("Message");
+		logInformation.setMethodName("Method name");
+		logInformation.setThrowable(new RuntimeException("Test"));		
 	}
 	
 	@Test
 	public void testFormatter(){
-		LogInformation information = getLogInformationWithError();
-		formatter.formatMessage(information);
-		Assertions.assertTrue();
-	}
-	
-	private LogInformation getLogInformationWithError(){
-		
-	}
+		Assert.assertNotNull(formatter.formatMessage(logInformation));
+	}	
 }

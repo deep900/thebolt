@@ -3,10 +3,15 @@
  */
 package org.thebolt.core.context;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.thebolt.log.impl.BoltLogger;
 
 /**
  * This is the default application environment implementation.
@@ -20,6 +25,7 @@ public class DefaultApplicationEnvironment implements ApplicationEnvironment {
 
 	private DefaultApplicationEnvironment() {
 		loadProperties();
+		loadBean("logger", "org.thebolt.log.impl.BoltLogger", BeanType.SINGLETON);
 	}
 
 	private static DefaultApplicationEnvironment applicationEnvironment = new DefaultApplicationEnvironment();
@@ -29,32 +35,51 @@ public class DefaultApplicationEnvironment implements ApplicationEnvironment {
 	}
 
 	public synchronized boolean loadBean(String beanName, String className, BeanType beanType) {
-		if (applicationBeanMap.containsKey(beanName)) {
-			switch (beanType) {
-			case NEW_INSTANCE:
-				try {
-					Object bean = getObject(className);
-					if (null != bean) {
-						applicationBeanMap.put(beanName, bean);
-					}
-				} catch (Exception err) {
-					
-				}
-				break;
-			default:
-				break;
+		Object bean = null;
+		switch (beanType) {
+		case NEW_INSTANCE:
+			bean = getObject(className);
+			break;
+		case SINGLETON:
+			if (applicationBeanMap.contains(className)) {
+				System.out.println("Bean already loaded.");
+				return true;
 			}
+			bean = getInstance(className);
+			if (null == bean) {
+				bean = getObject(className);
+			}
+			break;
+		default:
+			break;
+		}
+		if (null != bean) {
+			applicationBeanMap.put(beanName, bean);
+			return true;
 		}
 		return false;
 	}
 
 	private Object getObject(String className) {
 		try {
-			return Class.forName(className);
+			Class classObj = Class.forName(className);
+			try {
+				Constructor cons = classObj.getConstructor(null);
+				try {
+					return cons.newInstance(null);
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {					
+					e.printStackTrace();
+					return null;
+				}
+			} catch (NoSuchMethodException | SecurityException e) {			
+				e.printStackTrace();
+				return null;
+			}
 		} catch (ClassNotFoundException e) {
-
+			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 
 	public Map<String, Object> getAllApplicationBeans() {
@@ -70,18 +95,37 @@ public class DefaultApplicationEnvironment implements ApplicationEnvironment {
 	}
 
 	public void loadProperties() {
-
+		System.out.println("Loading the properties ");
 	}
 
 	public void removeBean(String beanName) {
 		if (null != beanName && !beanName.isEmpty()) {
 			applicationBeanMap.remove(beanName);
 		} else {
-
+			
 		}
 	}
 
 	public List<String> discoverBeansOnStartup() {
+		return null;
+	}
+
+	public Object getInstance(String className) {
+		Class classObj;
+		try {
+			classObj = Class.forName(className);
+			Method[] methods = classObj.getMethods();
+			for (int y = 0; y < methods.length; y++) {
+				Method obj = methods[y];
+				System.out.println("Printing the method name :" + obj.getName());
+				if (obj.getName().equalsIgnoreCase("getInstance")) {
+					return obj.invoke(null, null);
+				}
+			}
+		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

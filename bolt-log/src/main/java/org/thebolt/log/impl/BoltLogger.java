@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.thebolt.log.LogInformation;
 import org.thebolt.log.LogStream;
@@ -16,6 +17,7 @@ import org.thebolt.log.properties.FileLogStreamProp;
 import org.thebolt.log.properties.LoggerProperties;
 import org.thebolt.log.stream.impl.ConsoleLogStream;
 import org.thebolt.log.stream.impl.FileLogStream;
+import org.thebolt.log.stream.impl.StandardLogInformation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -84,6 +86,30 @@ public class BoltLogger implements Logger {
 		} else {
 			System.out.println("Unable to read the properties file.");
 		}
+	}
+
+	public void logMessage(String message, Level logLevel) {
+		LogInformation logInformation = getBasicLogInformation(message,logLevel);
+		logInformation.setThrowable(null);
+		log(logInformation);
+	}
+
+	public void logMessage(String message, Throwable err, Level logLevel) {
+		LogInformation logInformation = getBasicLogInformation(message,logLevel);
+		logInformation.setThrowable(err);
+		log(logInformation);
+	}
+
+	private LogInformation getBasicLogInformation(String message, Level logLevel) {
+		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
+		String callerClass = ste.getClassName();
+		String callerMethod = ste.getMethodName();
+		LogInformation logInformation = new StandardLogInformation();
+		logInformation.setMethodName(callerMethod);
+		logInformation.setClassName(callerClass);
+		logInformation.setLogMessage(message);
+		logInformation.setLogLevel(logLevel);
+		return logInformation;
 	}
 
 	public static void main(String args[]) {
